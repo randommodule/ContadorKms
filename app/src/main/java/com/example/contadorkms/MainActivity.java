@@ -19,7 +19,7 @@ import androidx.core.content.ContextCompat;
 public class MainActivity extends AppCompatActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
+//a
     private Button startButton;
     private Button stopButton;
     private TextView distanceTextView;
