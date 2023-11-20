@@ -4,6 +4,7 @@ package com.example.contadorkms;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -25,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView distanceTextView;
     private TextView speedTextView;
 
+    private Location actualLocation;
+    private LocationManager locationManager;
     private boolean tracking = false;
     private double totalDistance = 0;
     private Location lastLocation;
@@ -71,14 +76,27 @@ public class MainActivity extends AppCompatActivity {
     private void startLocationUpdates() {
         // Implementa tu lógica para obtener la ubicación aquí
         // Puedes usar FusedLocationProviderClient, LocationManager, etc.
-
+        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         // Este es solo un ejemplo simulado
         Runnable locationRunnable = new Runnable() {
             @Override
             public void run() {
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                actualLocation = new Location(locationManager.getLastKnownLocation(Manifest.permission.ACCESS_FINE_LOCATION));
                 // Simulación de una nueva ubicación cada segundo
-                double latitude = Math.random() * 0.01 + 37.7749;
-                double longitude = Math.random() * 0.01 - 122.4194;
+                double latitude =  lastLocation.getLatitude();
+                        //Math.random() * 0.01 + 37.7749;
+                double longitude = lastLocation.getLongitude();
+                        //Math.random() * 0.01 - 122.4194;
 
                 Location newLocation = new Location("SimulatedProvider");
                 newLocation.setLatitude(latitude);
