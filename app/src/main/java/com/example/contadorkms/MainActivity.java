@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private void startLocationUpdates() {
         // Implementa tu lógica para obtener la ubicación aquí
         // Puedes usar FusedLocationProviderClient, LocationManager, etc.
-
+//a
         // Este es solo un ejemplo simulado
         Runnable locationRunnable = new Runnable() {
             @Override
