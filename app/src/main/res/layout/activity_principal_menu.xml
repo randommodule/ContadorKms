@@ -9,89 +9,96 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/principal_menu_bakcground"
         tools:context=".MainActivity"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
 
         <Button
             android:id="@+id/resetButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/startButton"
+            android:layout_width="176dp"
+            android:layout_height="51dp"
+            android:layout_below="@+id/stopButton"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="29dp"
-            android:layout_marginEnd="128dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="119dp"
+            android:background="@drawable/button_bottom"
             android:text="Reiniciar Recorrido" />
 
         <Button
             android:id="@+id/startButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="176dp"
+            android:layout_height="51dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:background="#F10606"
+            android:background="@drawable/button_bottom"
             android:onClick="startTracking"
             android:text="Iniciar Recorrido" />
 
         <Button
             android:id="@+id/stopButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/resetButton"
+            android:layout_width="176dp"
+            android:layout_height="51dp"
+            android:layout_below="@+id/startButton"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="129dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="119dp"
+            android:background="@drawable/button_bottom"
             android:enabled="false"
             android:onClick="stopTracking"
-            android:text="Detener Recorrido" />
+            android:text="Pausar Recorrido" />
 
         <Button
             android:id="@+id/goToMainButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/stopButton"
+            android:layout_width="176dp"
+            android:layout_height="51dp"
+            android:layout_below="@+id/resetButton"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="117dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginEnd="136dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="119dp"
+            android:background="@drawable/button_bottom"
             android:onClick="goToMainActivity"
             android:text="Volver al menu inicial" />
 
         <TextView
             android:id="@+id/distanceTextView"
-            android:layout_width="203dp"
-            android:layout_height="wrap_content"
+            android:layout_width="170dp"
+            android:layout_height="22dp"
             android:layout_below="@+id/weightSpinner"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="112dp"
-            android:layout_marginTop="39dp"
-            android:layout_marginEnd="96dp"
+            android:layout_marginStart="110dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="88dp"
+            android:background="#4A4A4A"
             android:text="Distancia recorrida: 0 km" />
 
         <TextView
             android:id="@+id/speedTextView"
-            android:layout_width="199dp"
-            android:layout_height="wrap_content"
+            android:layout_width="170dp"
+            android:layout_height="22dp"
             android:layout_below="@id/distanceTextView"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="113dp"
-            android:layout_marginTop="33dp"
-            android:layout_marginEnd="99dp"
+            android:layout_marginStart="110dp"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="87dp"
+            android:background="#4A4A4A"
             android:text="Velocidad: 0 m/s" />
 
         <Spinner
             android:id="@+id/weightSpinner"
-            android:layout_width="157dp"
-            android:layout_height="wrap_content"
+            android:layout_width="171dp"
+            android:layout_height="24dp"
             android:layout_below="@+id/goToMainButton"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="216dp"
             android:layout_marginTop="37dp"
-            android:layout_marginEnd="38dp" />
+            android:layout_marginEnd="38dp"
+            android:background="#4A4A4A" />
 
         <TextView
             android:id="@+id/caloriesTextView"
@@ -100,31 +107,38 @@
             android:layout_below="@+id/speedTextView"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="102dp"
-            android:layout_marginTop="46dp"
-            android:layout_marginEnd="95dp"
+            android:layout_marginStart="110dp"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="86dp"
+            android:background="#4A4A4A"
             android:text="Calorias quemadas: 0 cal." />
 
         <TextView
             android:id="@+id/kilosTextView"
-            android:layout_width="186dp"
-            android:layout_height="wrap_content"
+            android:layout_width="170dp"
+            android:layout_height="22dp"
+            android:layout_alignBottom="@+id/caloriesTextView"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
             android:layout_marginStart="19dp"
-            android:layout_marginTop="321dp"
-            android:layout_marginEnd="206dp"
-            android:layout_marginBottom="379dp"
+            android:layout_marginTop="310dp"
+            android:layout_marginBottom="105dp"
+            android:background="#4A4A4A"
             android:text="Ingrese su Peso en kilos: " />
+
         <fragment
             android:id="@+id/mapFragment"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/caloriesTextView"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="8dp" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="102dp"
+            android:layout_height="55dp"
+            app:srcCompat="@drawable/run4life" />
 
     </RelativeLayout>
 

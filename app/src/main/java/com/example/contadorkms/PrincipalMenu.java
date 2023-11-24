@@ -23,7 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -70,14 +69,13 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         calorias = findViewById(R.id.caloriesTextView);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
-
+        onMapReady(googleMap);
         weightSpinner=findViewById(R.id.weightSpinner);
         String[] weightValues = new String[201];
         for (int i = 0; i <= 200; i++) {
             weightValues[i] = String.valueOf(i);
         }
 
-        // Crea un adaptador y establece los valores al Spinner
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, weightValues);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         weightSpinner.setAdapter(adapter);
@@ -90,10 +88,8 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
 
         locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
 
-        // Solicitar permisos
         requestLocationPermission();
 
-        // Inicializa el LocationHandlerThread
         locationHandlerThread = new LocationHandlerThread("LocationHandlerThread", locationListener);
         locationHandlerThread.start();
         locationHandlerThread.prepareHandler();
@@ -127,7 +123,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     public void startTracking(View view) {
         startsound.start();
         if(weightSpinner.getSelectedItem().equals("0")){
-            Toast.makeText(this,"No ha seleccionado su peso",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"No ha ingresado su peso en kilos",Toast.LENGTH_SHORT).show();
         }
         else{
             if (!tracking ) {
@@ -136,12 +132,9 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                 stopButton.setEnabled(true);
 
                 if (paused) {
-                    paused = false; // Se reinicia el indicador de pausa
-                    // No reiniciar totalDistance y lastLocation, para continuar desde donde se detuvo
+                    paused = false;
                 } else {
-                    // Si no está pausado, se está iniciando desde cero, entonces reinicia los valores
                     if (lastLocation == null) {
-                        // Solo reinicia si lastLocation es nulo, es decir, al inicio
                         totalDistance = 0;
                     }
                 }
@@ -156,9 +149,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     public void onMapReady(GoogleMap map) {
         googleMap = map;
 
-        // Puedes personalizar el mapa aquí, si es necesario
-
-        // Mostrar la ubicación actual si está disponible
         Location lastKnownLocation = getLastKnownLocation();
         if (lastKnownLocation != null) {
             showCurrentLocationOnMap(lastKnownLocation);
@@ -169,20 +159,25 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         if (googleMap != null) {
             LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-            // Mueve la cámara a la ubicación actual
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLatLng));
 
-            // Puedes agregar un marcador si lo deseas
             googleMap.addMarker(new MarkerOptions().position(currentLatLng).title("Ubicación Actual"));
 
-            // Puedes ajustar el nivel de zoom según tus necesidades
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f));
         }
     }
 
 
     private Location getLastKnownLocation() {
-        return null;  // Implementa la lógica para obtener la última ubicación conocida
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (locationManager != null) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return null;
+            }
+            return locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        }
+        return null;
     }
 
     public void stopTracking(View view) {
@@ -200,7 +195,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         if (locationHandlerThread != null) {
             locationHandlerThread.requestLocationUpdates(locationManager);
         } else {
-            // Manejar la situación donde locationHandlerThread es nulo
             Log.e("PrincipalMenu", "locationHandlerThread is null");
         }
     }
@@ -272,7 +266,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startLocationUpdates();
             } else {
-                // Permiso denegado, muestra un mensaje o realiza acciones adicionales
+                Toast.makeText(this, "Se requiere acceso a la ubicación", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -322,7 +316,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         }
 
         public void requestLocationUpdates(LocationManager locationManager) {
-            // Asegúrate de que el handler esté preparado antes de llamar a este método
             if (handler == null) {
                 throw new IllegalStateException("Handler not prepared. Call prepareHandler() first.");
             }
@@ -348,7 +341,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         }
 
         public void stopLocationUpdates(LocationManager locationManager) {
-            // Asegúrate de que el handler esté preparado antes de llamar a este método
             if (handler == null) {
                 throw new IllegalStateException("Handler not prepared. Call prepareHandler() first.");
             }
