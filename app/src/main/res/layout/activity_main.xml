@@ -11,7 +11,9 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity"
         tools:layout_editor_absoluteX="-51dp"
-        tools:layout_editor_absoluteY="-110dp">
+        tools:layout_editor_absoluteY="-110dp"
+        android:background="@drawable/main_menu_wallpaper"
+        >
 
         <Button
             android:id="@+id/startButton"
@@ -20,9 +22,9 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="134dp"
-            android:layout_marginTop="111dp"
-            android:layout_marginEnd="124dp"
+            android:layout_marginStart="136dp"
+            android:layout_marginTop="152dp"
+            android:layout_marginEnd="122dp"
             android:onClick="openSecondActivity"
             android:text="Comenzar" />
 
@@ -38,6 +40,12 @@
             android:layout_marginEnd="126dp"
             android:onClick="closeApplication"
             android:text="Salir" />
+
+        <ImageView
+            android:id="@+id/imageView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/run4life" />
 
     </RelativeLayout>
 

@@ -3,6 +3,7 @@ package com.example.contadorkms;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import android.Manifest;
@@ -10,17 +11,13 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,8 +27,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-public class PrincipalMenu extends AppCompatActivity {
+
+public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallback{
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
@@ -41,7 +45,8 @@ public class PrincipalMenu extends AppCompatActivity {
     private TextView distanceTextView;
     private TextView speedTextView;
     private TextView calorias;
-
+    private GoogleMap googleMap;
+    private MediaPlayer startsound;
     private LocationManager locationManager;
     private boolean tracking = false;
     private Spinner weightSpinner;
@@ -56,13 +61,15 @@ public class PrincipalMenu extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal_menu);
-
+        startsound =MediaPlayer.create(this,R.raw.startsound);
         startButton = findViewById(R.id.startButton);
         stopButton = findViewById(R.id.stopButton);
         resetButton = findViewById(R.id.resetButton);
         distanceTextView = findViewById(R.id.distanceTextView);
         speedTextView = findViewById(R.id.speedTextView);
         calorias = findViewById(R.id.caloriesTextView);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
+        mapFragment.getMapAsync(this);
 
         weightSpinner=findViewById(R.id.weightSpinner);
         String[] weightValues = new String[201];
@@ -94,6 +101,7 @@ public class PrincipalMenu extends AppCompatActivity {
     }
 
     public void goToMainActivity(View view) {
+        startsound.start();
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
@@ -117,6 +125,7 @@ public class PrincipalMenu extends AppCompatActivity {
     }
 
     public void startTracking(View view) {
+        startsound.start();
         if(weightSpinner.getSelectedItem().equals("0")){
             Toast.makeText(this,"No ha seleccionado su peso",Toast.LENGTH_SHORT).show();
         }
@@ -143,6 +152,33 @@ public class PrincipalMenu extends AppCompatActivity {
 
 
         }
+    @Override
+    public void onMapReady(GoogleMap map) {
+        googleMap = map;
+
+        // Puedes personalizar el mapa aquí, si es necesario
+
+        // Mostrar la ubicación actual si está disponible
+        Location lastKnownLocation = getLastKnownLocation();
+        if (lastKnownLocation != null) {
+            showCurrentLocationOnMap(lastKnownLocation);
+        }
+    }
+
+    private void showCurrentLocationOnMap(Location location) {
+        if (googleMap != null) {
+            LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+            // Mueve la cámara a la ubicación actual
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLatLng));
+
+            // Puedes agregar un marcador si lo deseas
+            googleMap.addMarker(new MarkerOptions().position(currentLatLng).title("Ubicación Actual"));
+
+            // Puedes ajustar el nivel de zoom según tus necesidades
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f));
+        }
+    }
 
 
     private Location getLastKnownLocation() {
@@ -150,6 +186,7 @@ public class PrincipalMenu extends AppCompatActivity {
     }
 
     public void stopTracking(View view) {
+        startsound.start();
         if (tracking) {
             tracking = false;
             paused = false;
@@ -182,17 +219,20 @@ public class PrincipalMenu extends AppCompatActivity {
     }
 
     public void resetTracking(View view) {
-        totalDistance = 0;
-        lastLocation = null;
-        isFirstLocation = true;
-
-        distanceTextView.setText("Distancia recorrida: 0 km");
-        speedTextView.setText("Velocidad: 0 m/s");
-        calorias.setText("Calorias quemadas: 0 cal.");
-        paused=false;
-        startTracking(view);
-
-        Toast.makeText(this, "Recorrido reiniciado", Toast.LENGTH_SHORT).show();
+        startsound.start();
+        if(weightSpinner.getSelectedItem().equals("0")){
+            Toast.makeText(this,"No ha seleccionado su peso",Toast.LENGTH_SHORT).show();
+        }else{
+            totalDistance = 0;
+            lastLocation = null;
+            isFirstLocation = true;
+            distanceTextView.setText("Distancia recorrida: 0 km");
+            speedTextView.setText("Velocidad: 0 m/s");
+            calorias.setText("Calorias quemadas: 0 cal.");
+            paused=false;
+            startTracking(view);
+            Toast.makeText(this, "Recorrido reiniciado", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updateDistanceAndSpeed(Location newLocation) {
