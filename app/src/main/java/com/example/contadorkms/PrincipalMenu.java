@@ -3,6 +3,10 @@ package com.example.contadorkms;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
@@ -30,14 +34,22 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallback{
+public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallback, SensorEventListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
+    private String  newspeed;
 
+    private Marker startMarker=null;
+
+    private Marker currentLocationMarker;
     private Button startButton;
     private Button stopButton;
     private Button resetButton;
@@ -58,27 +70,34 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal_menu);
-        startsound =MediaPlayer.create(this,R.raw.startsound);
+        startsound = MediaPlayer.create(this, R.raw.startsound);
         startButton = findViewById(R.id.startButton);
         stopButton = findViewById(R.id.stopButton);
         resetButton = findViewById(R.id.resetButton);
         distanceTextView = findViewById(R.id.distanceTextView);
         speedTextView = findViewById(R.id.speedTextView);
         calorias = findViewById(R.id.caloriesTextView);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
-        mapFragment.getMapAsync(this);
-        onMapReady(googleMap);
-        weightSpinner=findViewById(R.id.weightSpinner);
+        weightSpinner = findViewById(R.id.weightSpinner);
         String[] weightValues = new String[201];
         for (int i = 0; i <= 200; i++) {
             weightValues[i] = String.valueOf(i);
         }
-
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, weightValues);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         weightSpinner.setAdapter(adapter);
+
+        sensorManager = (SensorManager) getSystemService(this.SENSOR_SERVICE);
+
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        if (accelerometer != null) {
+          sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        } else {
+          Toast.makeText(this,"Este dispositivo no tiene acelerometro",Toast.LENGTH_SHORT).show();
+        }
+
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -87,13 +106,13 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         });
 
         locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-
         requestLocationPermission();
-
         locationHandlerThread = new LocationHandlerThread("LocationHandlerThread", locationListener);
         locationHandlerThread.start();
         locationHandlerThread.prepareHandler();
         locationHandlerThread.setLocationListener(locationListener);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
+        mapFragment.getMapAsync(this);
     }
 
     public void goToMainActivity(View view) {
@@ -122,33 +141,77 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
 
     public void startTracking(View view) {
         startsound.start();
-        if(weightSpinner.getSelectedItem().equals("0")){
-            Toast.makeText(this,"No ha ingresado su peso en kilos",Toast.LENGTH_SHORT).show();
+        if (weightSpinner.getSelectedItem().equals("0")) {
+            Toast.makeText(this, "No ha ingresado su peso en kilos", Toast.LENGTH_SHORT).show();
+            return;
         }
-        else{
-            if (!tracking ) {
-                tracking = true;
-                startButton.setEnabled(false);
-                stopButton.setEnabled(true);
+        tracking = true;
+        startButton.setEnabled(false);
+        stopButton.setEnabled(true);
+        paused = false;
+        if(lastLocation==null){
+            lastLocation=getLastKnownLocation();
+        }
+        else if (lastLocation != null && googleMap != null) {
+            totalDistance = 0;
+        }
+        if (lastLocation != null && googleMap != null && startMarker == null) {
+            LatLng startLatLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+            startMarker = googleMap.addMarker(new MarkerOptions()
+                    .position(startLatLng)
+                    .title("Punto de inicio")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 15f));
+        }
+        locationHandlerThread.requestLocationUpdates(locationManager);
 
-                if (paused) {
-                    paused = false;
-                } else {
-                    if (lastLocation == null) {
-                        totalDistance = 0;
-                    }
-                }
+    }
 
-                locationHandlerThread.requestLocationUpdates(locationManager);
+    public void resetTracking(View view) {
+        startsound.start();
+        startButton.setEnabled(false);
+        stopButton.setEnabled(true);
+        if (weightSpinner.getSelectedItem().equals("0")) {
+            Toast.makeText(this, "No ha ingresado su peso en kilos", Toast.LENGTH_SHORT).show();
+        } else {
+            totalDistance = 0;
+            isFirstLocation = true;
+            distanceTextView.setText("Distancia recorrida: 0 km");
+            speedTextView.setText("Velocidad: 0 m/s");
+            calorias.setText("Calorias quemadas: 0 cal.");
+            paused = false;
+            if (startMarker != null) {
+                startMarker.remove();
+                startMarker = null;
             }
+            if (lastLocation != null && googleMap != null && startMarker == null) {
+                LatLng startLatLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+                startMarker = googleMap.addMarker(new MarkerOptions()
+                        .position(startLatLng)
+                        .title("Punto de inicio")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 15f));
+            }
+            Toast.makeText(this, "Recorrido reiniciado", Toast.LENGTH_SHORT).show();
         }
+    }
 
+    public void stopTracking(View view) {
+        startsound.start();
+        startButton.setEnabled(true);
+        stopButton.setEnabled(false);
+        speedTextView.setText("Velocidad: 0 m/s");
+        if (tracking) {
+            tracking = false;
+            paused = true;
 
+            stopLocationUpdates();
         }
+    }
+
     @Override
     public void onMapReady(GoogleMap map) {
         googleMap = map;
-
         Location lastKnownLocation = getLastKnownLocation();
         if (lastKnownLocation != null) {
             showCurrentLocationOnMap(lastKnownLocation);
@@ -158,12 +221,21 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     private void showCurrentLocationOnMap(Location location) {
         if (googleMap != null) {
             LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLatLng));
-
-            googleMap.addMarker(new MarkerOptions().position(currentLatLng).title("Ubicación Actual"));
-
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f));
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (currentLocationMarker == null) {
+                        currentLocationMarker = googleMap.addMarker(new MarkerOptions()
+                                .position(currentLatLng)
+                                .title("Ubicación Actual")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                    } else {
+                        currentLocationMarker.setPosition(currentLatLng);
+                    }
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLatLng));
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f));
+                }
+            });
         }
     }
 
@@ -180,17 +252,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         return null;
     }
 
-    public void stopTracking(View view) {
-        startsound.start();
-        if (tracking) {
-            tracking = false;
-            paused = false;
-            startButton.setEnabled(true);
-            stopButton.setEnabled(false);
-            stopLocationUpdates();
-        }
-    }
-
     public void startLocationUpdates() {
         if (locationHandlerThread != null) {
             locationHandlerThread.requestLocationUpdates(locationManager);
@@ -202,7 +263,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     private void stopLocationUpdates() {
         if (!paused && locationManager != null) {
             locationHandlerThread.stopLocationUpdates(locationManager);
-
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -212,46 +272,28 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         }
     }
 
-    public void resetTracking(View view) {
-        startsound.start();
-        if(weightSpinner.getSelectedItem().equals("0")){
-            Toast.makeText(this,"No ha seleccionado su peso",Toast.LENGTH_SHORT).show();
-        }else{
-            totalDistance = 0;
-            lastLocation = null;
-            isFirstLocation = true;
-            distanceTextView.setText("Distancia recorrida: 0 km");
-            speedTextView.setText("Velocidad: 0 m/s");
-            calorias.setText("Calorias quemadas: 0 cal.");
-            paused=false;
-            startTracking(view);
-            Toast.makeText(this, "Recorrido reiniciado", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void updateDistanceAndSpeed(Location newLocation) {
         if (lastLocation != null) {
             float distance = lastLocation.distanceTo(newLocation);
             totalDistance += distance;
-
             long timeElapsed = (newLocation.getTime() - lastLocation.getTime()) / 1000;
             if (timeElapsed > 0) {
                 double speed = distance / timeElapsed;
-
-                final String distanceText = String.format("Distancia recorrida: %.2f km", totalDistance / 1000);
                 final String speedText = String.format("Velocidad: %.2f m/s", speed);
-
+                final String distanceText = String.format("Distancia recorrida: %.2f km", totalDistance / 1000);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         distanceTextView.setText(distanceText);
+                        if(accelerometer==null){
                         speedTextView.setText(speedText);
+                        }
                         calorias.setText("Calorias quemadas: " + ((int)(1.03 * Integer.parseInt(weightSpinner.getSelectedItem().toString()) * (totalDistance / 1000))) + " cal.");
+                        showCurrentLocationOnMap(newLocation);
                     }
                 });
             }
         }
-
         lastLocation = newLocation;
         if (isFirstLocation) {
             lastLocation = newLocation;
@@ -287,21 +329,44 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         public void onLocationChanged(Location newLocation) {
             updateDistanceAndSpeed(newLocation);
         }
-        // Otros métodos de LocationListener...
     };
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(accelerometer!=null){
+        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+            float velocidadX = event.values[0];
+            float velocidadY = event.values[1];
+            float velocidadZ = event.values[2];
 
 
+            float velocidadTotal = (float) Math.sqrt(velocidadX * velocidadX + velocidadY * velocidadY + velocidadZ * velocidadZ);
+
+            float umbralMovimiento = 1.0f;
+
+            if (velocidadTotal > umbralMovimiento) {
+               newspeed = "Velocidad: " + velocidadTotal + " m/s";
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        speedTextView.setText(newspeed);
+                        calorias.setText("Calorias quemadas: " + ((int)(1.03 * Integer.parseInt(weightSpinner.getSelectedItem().toString()) * (totalDistance / 1000))) + " cal.");
+                  }
+                });
+            }
+        }
+        }
+    }
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
 
 
     public class LocationHandlerThread extends HandlerThread {
-
         private Handler handler;
         private LocationListener locationListener;
-
         public void setLocationListener(LocationListener listener) {
             locationListener = listener;
         }
-
         public LocationHandlerThread(String name, LocationListener listener) {
             super(name);
             locationListener = listener;
@@ -319,7 +384,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
             if (handler == null) {
                 throw new IllegalStateException("Handler not prepared. Call prepareHandler() first.");
             }
-
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -335,6 +399,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                             return;
                         }
                         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
+
                     }
                 }
             });
@@ -344,7 +409,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
             if (handler == null) {
                 throw new IllegalStateException("Handler not prepared. Call prepareHandler() first.");
             }
-
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -355,6 +419,4 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
             });
         }
     }
-
-
 }
