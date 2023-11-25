@@ -3,6 +3,7 @@ package com.example.contadorkms;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -38,6 +39,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 
 public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallback, SensorEventListener {
@@ -48,6 +51,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     private String  newspeed;
 
     private Marker startMarker=null;
+    private Polyline routePolyline;
 
     private Marker currentLocationMarker;
     private Button startButton;
@@ -215,15 +219,18 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         Location lastKnownLocation = getLastKnownLocation();
         if (lastKnownLocation != null) {
             showCurrentLocationOnMap(lastKnownLocation);
+
         }
     }
 
     private void showCurrentLocationOnMap(Location location) {
         if (googleMap != null) {
             LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    // Muestra la ubicación actual en el mapa
                     if (currentLocationMarker == null) {
                         currentLocationMarker = googleMap.addMarker(new MarkerOptions()
                                 .position(currentLatLng)
@@ -234,10 +241,27 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                     }
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLatLng));
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f));
+
+                    // Dibuja la Polyline entre el punto A y el punto B
+                    if (startMarker != null) {
+                        // Verifica si ya existe una Polyline y la elimina
+                        if (routePolyline != null) {
+                            routePolyline.remove();
+                        }
+
+                        LatLng startPoint = startMarker.getPosition();
+                        PolylineOptions polylineOptions = new PolylineOptions()
+                                .add(startPoint, currentLatLng)
+                                .width(5)
+                                .color(Color.BLUE);
+
+                        routePolyline = googleMap.addPolyline(polylineOptions);
+                    }
                 }
             });
         }
     }
+
 
 
     private Location getLastKnownLocation() {
