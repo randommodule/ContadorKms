@@ -155,7 +155,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         startsound.start();
         if (weightSpinner.getSelectedItem().equals("0")) {
             Toast.makeText(this, "No ha ingresado su peso en kilos", Toast.LENGTH_SHORT).show();
-            return;
         }
         else {
             tracking = true;
