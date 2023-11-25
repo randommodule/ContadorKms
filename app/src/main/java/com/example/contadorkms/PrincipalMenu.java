@@ -157,7 +157,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
             lastLocation=getLastKnownLocation();
         }
 
-        
+
         if (lastLocation != null && googleMap != null && startMarker == null) {
             LatLng startLatLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
             startMarker = googleMap.addMarker(new MarkerOptions()
@@ -239,15 +239,10 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                     }
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLatLng));
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f));
-
-                    // Dibuja la Polyline entre el punto A y el punto B
                     if (startMarker != null) {
-                        // Verifica si ya existe una Polyline y la elimina
-
                         if (routePolyline != null) {
                             routePolyline.remove();
                         }
-
                         LatLng startPoint = startMarker.getPosition();
                         PolylineOptions polylineOptions = new PolylineOptions()
                                 .add(startPoint, currentLatLng)
@@ -260,8 +255,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
             });
         }
     }
-
-
 
     private Location getLastKnownLocation() {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
