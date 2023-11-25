@@ -57,6 +57,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     private Button startButton;
     private Button stopButton;
     private Button resetButton;
+    private Button location;
     private TextView distanceTextView;
     private TextView speedTextView;
     private TextView calorias;
@@ -81,6 +82,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         startButton = findViewById(R.id.startButton);
         stopButton = findViewById(R.id.stopButton);
         resetButton = findViewById(R.id.resetButton);
+        location=findViewById(R.id.sendLocationButton);
         distanceTextView = findViewById(R.id.distanceTextView);
         speedTextView = findViewById(R.id.speedTextView);
         calorias = findViewById(R.id.caloriesTextView);
@@ -106,6 +108,12 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
             @Override
             public void onClick(View v) {
                 resetTracking(v);
+            }
+        });
+        location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendLocation(v);
             }
         });
 
@@ -228,7 +236,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    // Muestra la ubicación actual en el mapa
                     if (currentLocationMarker == null) {
                         currentLocationMarker = googleMap.addMarker(new MarkerOptions()
                                 .position(currentLatLng)
@@ -297,17 +304,20 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                 double speed = distance / timeElapsed;
                 final String speedText = String.format("Velocidad: %.2f m/s", speed);
                 final String distanceText = String.format("Distancia recorrida: %.2f km", totalDistance / 1000);
+
+                if(!paused){
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         distanceTextView.setText(distanceText);
-                        if(accelerometer==null){
-                        speedTextView.setText(speedText);
+                        if (accelerometer == null) {
+                            speedTextView.setText(speedText);
                         }
-                        calorias.setText("Calorias quemadas: " + ((int)(1.03 * Integer.parseInt(weightSpinner.getSelectedItem().toString()) * (totalDistance / 1000))) + " cal.");
+                        calorias.setText("Calorias quemadas: " + ((int) (1.03 * Integer.parseInt(weightSpinner.getSelectedItem().toString()) * (totalDistance / 1000))) + " cal.");
                         showCurrentLocationOnMap(newLocation);
                     }
                 });
+            }
             }
         }
         lastLocation = newLocation;
@@ -433,6 +443,43 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                     }
                 }
             });
+        }
+    }
+    private Location getCurrentLocation() {
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (locationManager != null) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return null;
+            }
+            return locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        }
+        return null;
+    }
+    private String generateGoogleMapsLink(double latitude, double longitude) {
+        return "https://www.google.com/maps?q=" + latitude + "," + longitude;
+    }
+    public void sendLocation(View view) {
+        Location currentLocation = getCurrentLocation();
+
+        if (currentLocation != null) {
+            double latitude = currentLocation.getLatitude();
+            double longitude = currentLocation.getLongitude();
+
+            String googleMapsLink = generateGoogleMapsLink(latitude, longitude);
+
+            Intent sendIntent = new Intent("android.intent.action.SEND");
+            Location myposition=getCurrentLocation();
+            sendIntent.putExtra(Intent.EXTRA_TEXT, "Mi ubicación: " + generateGoogleMapsLink(myposition.getLatitude(),myposition.getLongitude()));
+            sendIntent.setType("text/plain");
+            sendIntent.setPackage("com.whatsapp");
+
+            try {
+                startActivity(sendIntent);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "No se pudo enviar la ubicación", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }
