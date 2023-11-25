@@ -371,6 +371,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
 
             if (velocidadTotal > umbralMovimiento) {
                newspeed = "Velocidad: " + velocidadTotal + " m/s";
+               if(!paused){
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -378,6 +379,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                         calorias.setText("Calorias quemadas: " + ((int)(1.03 * Integer.parseInt(weightSpinner.getSelectedItem().toString()) * (totalDistance / 1000))) + " cal.");
                   }
                 });
+               }
             }
         }
         }
