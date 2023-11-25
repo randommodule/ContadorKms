@@ -157,34 +157,36 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
             Toast.makeText(this, "No ha ingresado su peso en kilos", Toast.LENGTH_SHORT).show();
             return;
         }
-        tracking = true;
-        startButton.setEnabled(false);
-        stopButton.setEnabled(true);
-        paused = false;
-        if(lastLocation==null){
-            lastLocation=getLastKnownLocation();
+        else {
+            tracking = true;
+            startButton.setEnabled(false);
+            stopButton.setEnabled(true);
+            paused = false;
+            if (lastLocation == null) {
+                lastLocation = getLastKnownLocation();
+            }
+
+
+            if (lastLocation != null && googleMap != null && startMarker == null) {
+                LatLng startLatLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+                startMarker = googleMap.addMarker(new MarkerOptions()
+                        .position(startLatLng)
+                        .title("Punto de inicio")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 15f));
+            }
+            locationHandlerThread.requestLocationUpdates(locationManager);
         }
-
-
-        if (lastLocation != null && googleMap != null && startMarker == null) {
-            LatLng startLatLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-            startMarker = googleMap.addMarker(new MarkerOptions()
-                    .position(startLatLng)
-                    .title("Punto de inicio")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 15f));
-        }
-        locationHandlerThread.requestLocationUpdates(locationManager);
-
     }
 
     public void resetTracking(View view) {
         startsound.start();
-        startButton.setEnabled(false);
-        stopButton.setEnabled(true);
+
         if (weightSpinner.getSelectedItem().equals("0")) {
             Toast.makeText(this, "No ha ingresado su peso en kilos", Toast.LENGTH_SHORT).show();
         } else {
+            startButton.setEnabled(false);
+            stopButton.setEnabled(true);
             totalDistance = 0;
             isFirstLocation = true;
             distanceTextView.setText("Distancia recorrida: 0 km");
