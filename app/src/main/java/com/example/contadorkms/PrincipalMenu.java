@@ -230,7 +230,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    // Muestra la ubicación actual en el mapa
                     if (currentLocationMarker == null) {
                         currentLocationMarker = googleMap.addMarker(new MarkerOptions()
                                 .position(currentLatLng)
@@ -242,9 +241,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLatLng));
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f));
 
-                    // Dibuja la Polyline entre el punto A y el punto B
                     if (startMarker != null) {
-                        // Verifica si ya existe una Polyline y la elimina
                         if (routePolyline != null) {
                             routePolyline.remove();
                         }
