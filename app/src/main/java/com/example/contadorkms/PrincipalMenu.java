@@ -62,7 +62,8 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     private TextView speedTextView;
     private TextView calorias;
     private GoogleMap googleMap;
-    private MediaPlayer startsound;
+    private MediaPlayer correctsound;
+    private MediaPlayer wrongsound;
     private LocationManager locationManager;
     private boolean tracking = false;
     private Spinner weightSpinner;
@@ -78,7 +79,8 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal_menu);
-        startsound = MediaPlayer.create(this, R.raw.startsound);
+        correctsound = MediaPlayer.create(this, R.raw.correct);
+        wrongsound=MediaPlayer.create(this,R.raw.wrong);
         startButton = findViewById(R.id.startButton);
         stopButton = findViewById(R.id.stopButton);
         resetButton = findViewById(R.id.resetButton);
@@ -113,6 +115,8 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         location.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                correctsound.start();
                 sendLocation(v);
             }
         });
@@ -128,7 +132,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     }
 
     public void goToMainActivity(View view) {
-        startsound.start();
+        correctsound.start();
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
@@ -152,11 +156,13 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     }
 
     public void startTracking(View view) {
-        startsound.start();
+
         if (weightSpinner.getSelectedItem().equals("0")) {
+            wrongsound.start();
             Toast.makeText(this, "No ha ingresado su peso en kilos", Toast.LENGTH_SHORT).show();
         }
         else {
+            correctsound.start();
             tracking = true;
             startButton.setEnabled(false);
             stopButton.setEnabled(true);
@@ -179,11 +185,13 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     }
 
     public void resetTracking(View view) {
-        startsound.start();
+
 
         if (weightSpinner.getSelectedItem().equals("0")) {
+            wrongsound.start();
             Toast.makeText(this, "No ha ingresado su peso en kilos", Toast.LENGTH_SHORT).show();
         } else {
+            correctsound.start();
             startButton.setEnabled(false);
             stopButton.setEnabled(true);
             totalDistance = 0;
@@ -209,7 +217,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     }
 
     public void stopTracking(View view) {
-        startsound.start();
+        correctsound.start();
         startButton.setEnabled(true);
         stopButton.setEnabled(false);
         speedTextView.setText("Velocidad: 0 m/s");
@@ -481,6 +489,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                 startActivity(sendIntent);
             } catch (Exception e) {
                 e.printStackTrace();
+                wrongsound.start();
                 Toast.makeText(this, "No se pudo enviar la ubicación", Toast.LENGTH_SHORT).show();
             }
         }

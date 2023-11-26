@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
     private Button start;
     private Button exit;
     private MediaPlayer mainsong;
-    private MediaPlayer startsound;
+    private MediaPlayer corretsound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         start=findViewById(R.id.startButton);
         exit=findViewById(R.id.exitButton);
         mainsong=MediaPlayer.create(this,R.raw.main_menu_track);
-        startsound =MediaPlayer.create(this,R.raw.startsound);
+        corretsound=MediaPlayer.create(this,R.raw.correct);
         mainsong.start();
         mainsong.setLooping(true);
 
@@ -33,12 +33,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void closeApplication(View view) {
-        startsound.start();
+        corretsound.start();
         mainsong.stop();
         finishAffinity();
     }
     public void openSecondActivity(View view) {
-        startsound.start();
+        corretsound.start();
         mainsong.stop();
         Intent intent = new Intent(this, PrincipalMenu.class);
         startActivity(intent);
