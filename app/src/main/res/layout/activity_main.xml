@@ -22,9 +22,9 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="136dp"
+            android:layout_marginStart="128dp"
             android:layout_marginTop="152dp"
-            android:layout_marginEnd="121dp"
+            android:layout_marginEnd="128dp"
             android:background="@drawable/button_bottom"
             android:onClick="openSecondActivity"
             android:text="Comenzar" />
@@ -36,9 +36,9 @@
             android:layout_below="@+id/startButton"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="136dp"
+            android:layout_marginStart="128dp"
             android:layout_marginTop="40dp"
-            android:layout_marginEnd="121dp"
+            android:layout_marginEnd="128dp"
             android:background="@drawable/button_bottom"
             android:onClick="closeApplication"
             android:text="Salir" />

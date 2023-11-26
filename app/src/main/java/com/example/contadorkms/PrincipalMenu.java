@@ -181,6 +181,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                 googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 15f));
             }
             locationHandlerThread.requestLocationUpdates(locationManager);
+            Toast.makeText(this, "Recorrido iniciado", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -224,7 +225,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         if (tracking) {
             tracking = false;
             paused = true;
-
+            Toast.makeText(this, "Recorrido pausado", Toast.LENGTH_SHORT).show();
             stopLocationUpdates();
         }
     }
