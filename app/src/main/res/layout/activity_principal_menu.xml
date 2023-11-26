@@ -69,9 +69,9 @@
             android:layout_below="@+id/weightSpinner"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="110dp"
+            android:layout_marginStart="99dp"
             android:layout_marginTop="24dp"
-            android:layout_marginEnd="88dp"
+            android:layout_marginEnd="99dp"
             android:background="#4A4A4A"
             android:text="Distancia recorrida: 0 km" />
 
@@ -82,22 +82,22 @@
             android:layout_below="@id/distanceTextView"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="110dp"
+            android:layout_marginStart="99dp"
             android:layout_marginTop="9dp"
-            android:layout_marginEnd="87dp"
+            android:layout_marginEnd="99dp"
             android:background="#4A4A4A"
             android:text="Velocidad: 0 m/s" />
 
         <Spinner
             android:id="@+id/weightSpinner"
-            android:layout_width="171dp"
-            android:layout_height="24dp"
+            android:layout_width="103dp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/goToMainButton"
-            android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="216dp"
-            android:layout_marginTop="37dp"
-            android:layout_marginEnd="38dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="39dp"
+            android:layout_marginEnd="99dp"
+            android:layout_toEndOf="@+id/kilosTextView"
             android:background="#4A4A4A" />
 
         <TextView
@@ -107,24 +107,24 @@
             android:layout_below="@+id/speedTextView"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="110dp"
+            android:layout_marginStart="99dp"
+            android:layout_marginEnd="99dp"
             android:layout_marginTop="9dp"
-            android:layout_marginEnd="86dp"
             android:background="#4A4A4A"
             android:text="Calorias quemadas: 0 cal." />
 
         <TextView
             android:id="@+id/kilosTextView"
-            android:layout_width="170dp"
-            android:layout_height="22dp"
+            android:layout_width="wrap_content"
+            android:layout_height="21dp"
             android:layout_alignBottom="@+id/caloriesTextView"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="19dp"
-            android:layout_marginTop="310dp"
-            android:layout_marginBottom="105dp"
+            android:layout_marginStart="99dp"
+            android:layout_marginTop="312dp"
+            android:layout_marginBottom="104dp"
             android:background="#4A4A4A"
-            android:text="Ingrese su Peso en kilos: " />
+            android:text="Peso en kilos: " />
 
         <fragment
             android:id="@+id/mapFragment"
