@@ -42,6 +42,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallback, SensorEventListener {
 
@@ -71,6 +74,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     private Location lastLocation;
     private boolean paused = false;
     private boolean isFirstLocation = true;
+    private List<LatLng> locationHistory = new ArrayList<>();
 
     private LocationHandlerThread locationHandlerThread;
 
@@ -186,12 +190,15 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     }
 
     public void resetTracking(View view) {
-
-
         if (weightSpinner.getSelectedItem().equals("0")) {
             wrongsound.start();
             Toast.makeText(this, "No ha ingresado su peso en kilos", Toast.LENGTH_SHORT).show();
         } else {
+            if (routePolyline != null) {
+                routePolyline.remove();
+                routePolyline = null;
+                locationHistory.clear();
+            }
             correctsound.start();
             startButton.setEnabled(false);
             stopButton.setEnabled(true);
@@ -212,6 +219,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                         .title("Punto de inicio")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
                 googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 15f));
+                locationHistory.add(startLatLng);
             }
             Toast.makeText(this, "Recorrido reiniciado", Toast.LENGTH_SHORT).show();
         }
@@ -254,17 +262,21 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                     } else {
                         currentLocationMarker.setPosition(currentLatLng);
                     }
+                    locationHistory.add(currentLatLng);
+
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLatLng));
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f));
-                    if (startMarker != null) {
+
+                    if (startMarker != null && locationHistory.size() > 1) {
                         if (routePolyline != null) {
                             routePolyline.remove();
                         }
-                        LatLng startPoint = startMarker.getPosition();
                         PolylineOptions polylineOptions = new PolylineOptions()
-                                .add(startPoint, currentLatLng)
                                 .width(5)
                                 .color(Color.BLUE);
+                        for (LatLng point : locationHistory) {
+                            polylineOptions.add(point);
+                        }
 
                         routePolyline = googleMap.addPolyline(polylineOptions);
                     }
@@ -373,12 +385,8 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
             float velocidadX = event.values[0];
             float velocidadY = event.values[1];
             float velocidadZ = event.values[2];
-
-
             float velocidadTotal = (float) Math.sqrt(velocidadX * velocidadX + velocidadY * velocidadY + velocidadZ * velocidadZ);
-
             float umbralMovimiento = 1.0f;
-
             if (velocidadTotal > umbralMovimiento) {
                newspeed = "Velocidad: " + velocidadTotal + " m/s";
                if(!paused){
@@ -409,7 +417,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
             super(name);
             locationListener = listener;
         }
-
         public void postTask(Runnable task) {
             handler.post(task);
         }
@@ -475,10 +482,6 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         Location currentLocation = getCurrentLocation();
 
         if (currentLocation != null) {
-            double latitude = currentLocation.getLatitude();
-            double longitude = currentLocation.getLongitude();
-
-            String googleMapsLink = generateGoogleMapsLink(latitude, longitude);
 
             Intent sendIntent = new Intent("android.intent.action.SEND");
             Location myposition=getCurrentLocation();
