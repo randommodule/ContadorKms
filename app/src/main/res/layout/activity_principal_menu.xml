@@ -7,9 +7,10 @@
     tools:context=".MainActivity">
 
     <RelativeLayout
+        android:id="@+id/principalMenu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/principal_menu_bakcground"
+        android:background="@drawable/principal_menu_background"
         tools:context=".MainActivity"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
@@ -108,8 +109,8 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="99dp"
-            android:layout_marginEnd="99dp"
             android:layout_marginTop="9dp"
+            android:layout_marginEnd="99dp"
             android:background="#4A4A4A"
             android:text="Calorias quemadas: 0 cal." />
 
@@ -135,7 +136,7 @@
             android:layout_marginTop="8dp" />
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/logoImage"
             android:layout_width="102dp"
             android:layout_height="55dp"
             app:srcCompat="@drawable/run4life" />
@@ -144,7 +145,7 @@
             android:id="@+id/sendLocationButton"
             android:layout_width="170dp"
             android:layout_height="52dp"
-            android:layout_below="@+id/imageView"
+            android:layout_below="@+id/logoImage"
             android:layout_alignParentStart="true"
             android:layout_marginStart="9dp"
             android:layout_marginTop="401dp"

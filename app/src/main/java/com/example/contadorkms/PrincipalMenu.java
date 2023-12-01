@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +53,8 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private String  newspeed;
+    private Sensor lightSensor;
+    private View mainLayout;
 
     private Marker startMarker=null;
 
@@ -64,6 +67,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
     private TextView distanceTextView;
     private TextView speedTextView;
     private TextView calorias;
+    private ImageView logo;
     private GoogleMap googleMap;
     private MediaPlayer correctsound;
     private MediaPlayer wrongsound;
@@ -83,8 +87,10 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal_menu);
+        mainLayout = findViewById(R.id.principalMenu);
         correctsound = MediaPlayer.create(this, R.raw.correct);
         wrongsound=MediaPlayer.create(this,R.raw.wrong);
+        logo=findViewById(R.id.logoImage);
         startButton = findViewById(R.id.startButton);
         stopButton = findViewById(R.id.stopButton);
         resetButton = findViewById(R.id.resetButton);
@@ -102,6 +108,20 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         weightSpinner.setAdapter(adapter);
 
         sensorManager = (SensorManager) getSystemService(this.SENSOR_SERVICE);
+        if (sensorManager != null) {
+            // Obtén una referencia al sensor de luminosidad
+            lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+            if (lightSensor != null) {
+                // Registra el SensorEventListener
+                sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            } else {
+                // El dispositivo no tiene sensor de luminosidad
+                Toast.makeText(this, "El dispositivo no tiene un sensor de luminosidad", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // El dispositivo no tiene servicio de sensores
+            Toast.makeText(this, "El dispositivo no tiene servicio de sensores", Toast.LENGTH_SHORT).show();
+        }
 
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         if (accelerometer != null) {
@@ -285,6 +305,7 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
         }
     }
 
+
     private Location getLastKnownLocation() {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (locationManager != null) {
@@ -400,6 +421,18 @@ public class PrincipalMenu extends AppCompatActivity implements OnMapReadyCallba
                }
             }
         }
+        }
+        if(lightSensor!=null){
+            if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+                float lightValue = event.values[0];
+                if (lightValue > 20) {
+                    logo.setImageResource(R.drawable.run4life);
+                    mainLayout.setBackgroundResource(R.drawable.principal_menu_background);
+                } else {
+                    logo.setImageResource(R.drawable.run4life_night);
+                    mainLayout.setBackgroundResource(R.drawable.principal_menu_night);
+                }
+            }
         }
     }
     @Override

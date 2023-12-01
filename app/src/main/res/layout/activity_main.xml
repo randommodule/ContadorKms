@@ -7,13 +7,13 @@
     tools:context=".MainActivity">
 
     <RelativeLayout
+        android:id="@+id/mainBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/main_menu_wallpaper"
         tools:context=".MainActivity"
         tools:layout_editor_absoluteX="-51dp"
-        tools:layout_editor_absoluteY="-110dp"
-        android:background="@drawable/main_menu_wallpaper"
-        >
+        tools:layout_editor_absoluteY="-110dp">
 
         <Button
             android:id="@+id/startButton"
@@ -44,7 +44,7 @@
             android:text="Salir" />
 
         <ImageView
-            android:id="@+id/imageView4"
+            android:id="@+id/logoImageMain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/run4life" />
